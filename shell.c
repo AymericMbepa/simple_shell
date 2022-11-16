@@ -38,7 +38,7 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 void prompt(void)
 {
 	char *str = {"#cisfun$ "};
-	int len = strlen(str);
+	int len = _strlen(str);
 
 	if (isatty(STDIN_FILENO))
 	{
@@ -61,4 +61,3 @@ void free_all(__attribute__((unused)) int st, char *line, char **args)
 	args = NULL;
 	line = NULL;
 }
-

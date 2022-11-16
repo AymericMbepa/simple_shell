@@ -56,11 +56,10 @@ void msg_error(char *cmd, int counter, char **av)
 	char c;
 
 	c = counter + '0';
-	write(STDOUT_FILENO, av[0], strlen(av[0]));
+	write(STDOUT_FILENO, av[0], _strlen(av[0]));
 	write(STDOUT_FILENO, ": ", 2);
 	write(STDOUT_FILENO, &c, 1);
 	write(STDOUT_FILENO, ": ", 2);
-	write(STDOUT_FILENO, cmd, strlen(cmd));
+	write(STDOUT_FILENO, cmd, _strlen(cmd));
 	write(STDOUT_FILENO, ": not found\n", 12);
 }
-

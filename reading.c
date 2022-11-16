@@ -34,9 +34,8 @@ char *read_line()
 	}
 	else
 	{
-		line[strlen(line) - 1] = '\0';
+		line[_strlen(line) - 1] = '\0';
 	}
 
 	return (line);
 }
-
