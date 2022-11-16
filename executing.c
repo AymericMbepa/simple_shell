@@ -63,3 +63,4 @@ void msg_error(char *cmd, int counter, char **av)
 	write(STDOUT_FILENO, cmd, strlen(cmd));
 	write(STDOUT_FILENO, ": not found\n", 12);
 }
+
