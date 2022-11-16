@@ -29,13 +29,13 @@ char *read_line()
 		}
 	}
 	else if (len == 1)
-  {
-    free(line);
-  }
-  else
-  {
-    line[strlen(line)-1] = '\0';
-  }
+	{
+		free(line);
+	}
+	else
+	{
+		line[strlen(line) - 1] = '\0';
+	}
 
 	return (line);
 }

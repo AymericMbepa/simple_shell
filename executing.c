@@ -36,8 +36,7 @@ int processing(char **args, char *line, int counter, char **av)
 	}
 	else
 	{
-		do
-		{
+		do {
 			waitpid(pid, &status, WUNTRACED);
 		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	}
