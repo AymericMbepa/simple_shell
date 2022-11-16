@@ -28,7 +28,14 @@ char *read_line()
 			exit(EXIT_FAILURE);
 		}
 	}
+	else if (len == 1)
+  {
+    free(line);
+  }
+  else
+  {
+    line[strlen(line)-1] = '\0';
+  }
 
 	return (line);
 }
-

@@ -15,7 +15,7 @@ int processing(char **args, char *line, int counter, char **av)
 	int status;
 
 	if (args[0] == NULL)
-		return (-1);
+		return (1);
 
 	pid = fork();
 	if (pid == -1)
@@ -34,7 +34,13 @@ int processing(char **args, char *line, int counter, char **av)
 		}
 		return (EXIT_SUCCESS);
 	}
-	wait(&status);
+	else
+	{
+		do
+		{
+			waitpid(pid, &status, WUNTRACED);
+		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	}
 	return (0);
 }
 
@@ -58,4 +64,3 @@ void msg_error(char *cmd, int counter, char **av)
 	write(STDOUT_FILENO, cmd, strlen(cmd));
 	write(STDOUT_FILENO, ": not found\n", 12);
 }
-

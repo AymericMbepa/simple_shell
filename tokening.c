@@ -18,11 +18,10 @@ char **split_line(char *line)
 	if (!tokens)
 	{
 		perror("Error : Allocation error");
-		return (NULL);
+		exit(EXIT_FAILURE);
 	}
 	tokens[0] = line;
 	tokens[1] = NULL;
 
 	return (tokens);
 }
-

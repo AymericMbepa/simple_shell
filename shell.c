@@ -59,4 +59,3 @@ void free_all(__attribute__((unused)) int st, char *line, char **args)
 	free(line);
 	free(args);
 }
-
