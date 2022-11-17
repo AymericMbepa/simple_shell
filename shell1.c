@@ -49,19 +49,19 @@ char *lsh_read_line()
 
 char **lsh_spilt_line(char *line)
 {
-	/*int bufsize = LSH_BUFSIZE;
-	position = 0;*/
+	int bufsize = LSH_BUFSIZE;
+	int position = 0;
 	char **tokens = malloc(2 * sizeof(char*));
-	/*char *token;*/
+	char *token;
 
 	if (!tokens)
 	{
 		fprintf(stderr, "lsh: allocation error\n");
 		exit(EXIT_FAILURE);
 	}
-	tokens[0] = line;
-	tokens[1] = NULL;
-	/*token = strtok(line, LSH_TOK_DELIM);
+	/*tokens[0] = line;
+	  tokens[1] = NULL;*/
+	token = strtok(line, LSH_TOK_DELIM);
 	while (token != NULL)
 	{
 		tokens[position] = token;
@@ -79,7 +79,7 @@ char **lsh_spilt_line(char *line)
 		}
 		token = strtok(NULL, LSH_TOK_DELIM);
 	}
-	tokens[position] = NULL;*/
+	tokens[position] = NULL;
 	return tokens;
 }
 
