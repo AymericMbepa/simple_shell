@@ -51,7 +51,7 @@ char **lsh_spilt_line(char *line)
 {
 	int bufsize = LSH_BUFSIZE;
 	int position = 0;
-	char **tokens = malloc(2 * sizeof(char*));
+	char **tokens = malloc(LSH_BUFSIZE * sizeof(char*));
 	char *token;
 
 	if (!tokens)
