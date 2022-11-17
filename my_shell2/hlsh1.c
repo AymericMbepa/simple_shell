@@ -2,10 +2,10 @@
 
 
 
-int main(int ac, char **av, char **env) {
+int main(int ac, char **av, char **env)
+{
 
+	lsh_loop(ac, av, env);
 
-  lsh_loop(ac, av, env);
-
-  return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
