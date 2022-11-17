@@ -10,42 +10,34 @@
 
 int main(int argc __attribute__((unused)), char *argv[])
 {
-	char *buffer, *check_exit = "exit";
-	size_t buffer_size = 0;
+	char *buffer; 
+	char *check_exit = "exit";
 	pid_t pid;
+	int status, counter = 0;
 
-	buffer = malloc(sizeof(char) * buffer_size);
-	if (buffer == NULL)
-		exit(1);
-	printf("$ ");
 	/*Use getline to accept commmands*/
-	while (getline(&buffer, &buffer_size, stdin) != -1)
+	while (1)
 	{
-		buffer[strcspn(buffer, "\n")] = 0;
-		if (strcmp(buffer, check_exit) == 0)
-		{
-			free(buffer);
-			return (0);
-		}
-		pid = fork();
-		if (pid == -1)
-		{
-			free(buffer);
-			return (-1);
-		}
-		if (pid == 0)
-		{
-			execute_program(buffer, argv);
-		}
-		else
-		{
-			wait(NULL);
-			free(buffer);
-			buffer = malloc(sizeof(char) * buffer_size);
-			if (buffer == NULL)
-				exit(1);
-			printf("$ ");
-		}
+		counter++;
+		if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "$ ", 2);
+		buffer = read_line ();
+		if (strcmp(buffer, check_exit) == 0)                                                                                          
+		{                                                                                                                              
+			free(buffer);                                                                                                          
+			return (0);                                                                                                            
+		}                                                                                                                              
+		pid = fork();                                                                                                                  
+		if (pid == -1)                                                                                                                 
+		{                                                                                                                              
+
+			free(buffer);                                                                                                         
+			return (-1);                                                                                                           
+		}                                                                                                                              
+		if (pid == 0)                                                                                                                  
+			execute_program(buffer, argv);                                                                                         
+		else                                                                                                                           
+			wait(&status);
 	}
 	free(buffer);
 	return (0);
@@ -96,23 +88,58 @@ void execute_program(char *buffer, char *argv[])
 char **split_string(char *string, char **divided_string)
 {
 	/*create divided_string variable*/
-	char *splits;
-	char *sep;
-	int i = 0;
+	/*char *splits;*/
+	/*char *sep;*/
+	/*int i = 0;*/
 
-	sep = " ";
+	/*sep = " ";*/
 	/*use strtok to get first token*/
-	splits = strtok(string, sep);
+	/*splits = strtok(string, sep);*/
 	/*while token isn't equal to NULL*/
-	while (splits != NULL)
-	{
-		/*assign divided string array to token*/
-		divided_string[i] = splits;
-		/*strtok(NULL)*/
-		splits = strtok(NULL, sep);
-		i++;
-	}
-	/*return array*/
+	divided_string[0] = string;
+	divided_string[1] = NULL;
+
 	return (divided_string);
+}
+
+
+/**
+ * read_line - Read the input by the User From stdin
+ *
+ * Return: Input
+ */
+
+char *read_line(void)
+{
+	char *line = NULL;
+	size_t bufsize = 0;
+	ssize_t len;
+
+	len = getline(&line, &bufsize, stdin);
+	if (len == -1)
+	{
+		if (feof(stdin))
+		{
+			if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "\n", 1);
+			free(line);
+			exit(EXIT_SUCCESS);
+		}
+		else
+		{
+			free(line);
+			exit(EXIT_FAILURE);
+		}
+	}
+	else if (len == 1)
+	{
+		free(line);
+	}
+	else
+	{
+		line[strlen(line) - 1] = '\0';
+	}
+
+	return (line);
 }
 
