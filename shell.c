@@ -1,150 +1,145 @@
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "shell.h"
 
-#define LSH_BUFSIZE 1024
-#define LSH_TOK_DELIM " \t\r\n\a"
 
-char *lsh_read_line()
+/**
+ * main - Simple shell enter point
+ * @argc: Argument count
+ * @argv: arguments list
+ * Return: Exit value by status
+ */
+
+int main(int argc __attribute__((unused)), char *argv[])
 {
-	int bufsize = LSH_BUFSIZE;
-	int position = 0;
-	char *buffer = malloc(sizeof(char)*bufsize);
-	int c;
+	char *buffer; 
+	char *check_exit = "exit";
+	pid_t pid;
+	int status, counter = 0;
 
-	if (!buffer)
-	{
-		fprintf(stderr, "lsh allocation error\n");
-		exit(EXIT_FAILURE);
-	}
+	/*Use getline to accept commmands*/
 	while (1)
 	{
-		c = getchar();
-		if (c == EOF || c == '\n')
+		counter++;
+		if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "$ ", 2);
+		buffer = read_line ();
+		if (strcmp(buffer, check_exit) == 0)                                                                                          
+		{                                                                                                                              
+			free(buffer);                                                                                                          
+			return (0);                                                                                                            
+		}                                                                                                                              
+		pid = fork();                                                                                                                  
+		if (pid == -1)                                                                                                                 
+		{                                                                                                                              
+
+			free(buffer);                                                                                                         
+			return (-1);                                                                                                           
+		}                                                                                                                              
+		if (pid == 0)                                                                                                                  
+			execute_program(buffer, argv);                                                                                         
+		else                                                                                                                           
+			wait(&status);
+	}
+	free(buffer);
+	return (0);
+}
+
+
+/**
+ * execute_program - Execute simple shell command
+ * @buffer: Input command
+ * @argv: list of args
+ */
+
+void execute_program(char *buffer, char *argv[])
+{
+	int i, number_of_words = 1, value;
+	char **argvec, **divided_string;
+
+	/*Use strtok to split the buffer with space as separator*/
+	for (i = 0; i < (int)strlen(buffer); i++)
+	{
+		if (buffer[i] == ' ')
+			number_of_words++;
+	}
+	divided_string = malloc(sizeof(char *) * number_of_words);
+	if (divided_string == NULL)
+		exit(1);
+	/*Put the split string inside argv array*/
+	argvec = split_string(buffer, divided_string);
+	/*Run execve on the command*/
+	value = execvp(argvec[0], argvec);
+	if (value == -1)
+	{
+		free(divided_string);
+		perror(argv[0]);
+		printf("$ ");
+	}
+	free(buffer);
+}
+
+
+/**
+ * split_strings - split line of Input
+ * @string: line of cmd to Parse
+ * @divided_string: split
+ * Return:  Array of char
+ */
+
+char **split_string(char *string, char **divided_string)
+{
+	/*create divided_string variable*/
+	/*char *splits;*/
+	/*char *sep;*/
+	/*int i = 0;*/
+
+	/*sep = " ";*/
+	/*use strtok to get first token*/
+	/*splits = strtok(string, sep);*/
+	/*while token isn't equal to NULL*/
+	divided_string[0] = string;
+	divided_string[1] = NULL;
+
+	return (divided_string);
+}
+
+
+/**
+ * read_line - Read the input by the User From stdin
+ *
+ * Return: Input
+ */
+
+char *read_line(void)
+{
+	char *line = NULL;
+	size_t bufsize = 0;
+	ssize_t len;
+
+	len = getline(&line, &bufsize, stdin);
+	if (len == -1)
+	{
+		if (feof(stdin))
 		{
-			buffer[position] = '\0';
-			return buffer;
+			if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "\n", 1);
+			free(line);
+			exit(EXIT_SUCCESS);
 		}
 		else
 		{
-			buffer[position] = c;
-		}
-		position++;
-
-		if (position >= bufsize)
-		{
-			bufsize += LSH_BUFSIZE;
-			buffer = realloc(buffer, bufsize);
-			if (!buffer)
-			{
-				fprintf(stderr, "lsh allocation error\n");
-				exit(EXIT_FAILURE);
-			}
+			free(line);
+			exit(EXIT_FAILURE);
 		}
 	}
-}
-
-char **lsh_spilt_line(char *line)
-{
-	/*int bufsize = LSH_BUFSIZE;
-	position = 0;*/
-	char **tokens = malloc(2 * sizeof(char*));
-	/*char *token;*/
-
-	if (!tokens)
+	else if (len == 1)
 	{
-		fprintf(stderr, "lsh: allocation error\n");
-		exit(EXIT_FAILURE);
-	}
-	tokens[0] = line;
-	tokens[1] = NULL;
-	/*token = strtok(line, LSH_TOK_DELIM);
-	while (token != NULL)
-	{
-		tokens[position] = token;
-		position ++;
-
-		if (position >= LSH_BUFSIZE)
-		{
-			bufsize += LSH_BUFSIZE;
-			tokens = realloc(tokens, bufsize * sizeof(char *));
-			if (!tokens)
-			{
-				fprintf(stderr, "lsh: allocation error\n");
-				exit(EXIT_FAILURE);
-			}
-		}
-		token = strtok(NULL, LSH_TOK_DELIM);
-	}
-	tokens[position] = NULL;*/
-	return tokens;
-}
-
-int lsh_launch(char **args)
-{
-	pid_t pid;
-	int status;
-
-	pid = fork();
-	if (pid == 0)
-	{
-		/* Child process*/
-		if (execve(args[0], args, NULL) == -1)
-		{
-			perror("./shell");
-		}
-		exit(EXIT_FAILURE);
-	} else if (pid < 0)
-	{
-		/* Error forking*/
-		perror("./shell");
+		free(line);
 	}
 	else
 	{
-		/* Parent process*/
-		do
-		{
-			waitpid(pid, &status, WUNTRACED);
-		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+		line[strlen(line) - 1] = '\0';
 	}
 
-	return 1;
+	return (line);
 }
 
-int lsh_execute(char **args)
-{
-
-	if (args[0] == NULL)
-	{
-		/* An empty command was entered.*/
-		return 1;
-	}
-	return lsh_launch(args);
-}
-
-void lsh_loop(void)
-{
-	char *line;
-	char **args;
-	int status;
-
-	do {
-		printf("#cisfun$ ");
-		line = lsh_read_line();
-		args = lsh_spilt_line(line);
-		status = lsh_execute(args);
-
-		free(line);
-		free(args);
-	} while(status);
-}
-
-int main(__attribute__((unused))int argc, __attribute__((unused))
-	 char const *argv[])
-{
-	lsh_loop();
-	return EXIT_SUCCESS;
-}
