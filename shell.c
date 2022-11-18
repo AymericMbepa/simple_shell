@@ -11,18 +11,16 @@
  * Return: always 0 succeed
  */
 
-int main()
+int main(void)
 {
 	extern char **environ;
-	char **av = malloc(2 * sizeof(char*));
+	char **av = malloc(2 * sizeof(char *));
 	pid_t pid;
 	int statut;
 	char *line = NULL;
 	size_t size = 0;
-	av[0] = line;
-	av[1] = NULL;
 
-	while(1)
+	while (1)
 	{
 		pid = fork();
 		if (pid == 0)
@@ -33,11 +31,15 @@ int main()
 				fprintf(stderr, "fail to get command line");
 				exit(1);
 			}
+			av[0] = line;
+			av[1] = NULL;
+			printf("%s\n", av[0]);
 			if (execve(av[0], av, environ) == -1)
 				perror("./shell");
+			free(av);
 		}
 		else
 			wait(&statut);
 	}
-	return(0);
+	return (0);
 }
